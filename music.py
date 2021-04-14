@@ -11,7 +11,15 @@ play_next_song = asyncio.Event()
 Tracks=[]
 p=False
 Playlist=[]
-
+ydl_opts = {
+        'download_archive': '',
+        'format': 'bestaudio/best',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+            }],
+        }
 class Music(commands.Cog):
 
     def __init__(self, bot):
@@ -25,7 +33,7 @@ class Music(commands.Cog):
     async def on_event_hook(self,event):
         if isinstance(event,(wavelink.TrackEnd,wavelink.TrackException)):
             play_next_song.set()
-            Tracks.pop(0)
+            
 
     async def audio_task(self):
         await self.bot.wait_until_ready()
@@ -44,30 +52,22 @@ class Music(commands.Cog):
             player = self.bot.wavelink.get_player(guild_id)
             await player.play(song)
             await play_next_song.wait()
-    def get_info_id(self):
-        pass
 
 
-
-    
-    def get_info(self,url):
-        ydl_opts = {
-            'download_archive': 'YOUR_PATH_HERE',
-            'format': 'bestaudio/best',
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-                }],
-            }
-        video_title=[]
+    async def get_song(self,ctx,url):
         with YoutubeDL(ydl_opts) as ydl:
             info=ydl.extract_info(url,download=False)
-            video_title.append(info.get('title',None))
-            ids=info.get("id", None)
+            video_title=info.get('title',None)
+        await self.play(ctx,query=video_title)   
+    async def get_info(self,ctx,url):
+      
+        
+        with YoutubeDL(ydl_opts) as ydl:
+            info=ydl.extract_info(url,download=False)
+            
 
-        print(ids)
-        return video_title 
+        for jsn in info.get('entries'):
+            await self.play(ctx,query=str(jsn["title"]))
 
     @commands.command(name='connect')
     async def connect(self, ctx, *, channel: discord.VoiceChannel=None):
@@ -81,11 +81,15 @@ class Music(commands.Cog):
         
     @commands.command()
     async def play(self, ctx,*,query:str):
-        if "https://www.youtube.com/watch" in query:
-            query=self.get_info(query)
+
+        if "https://www.youtube.com/playlist" in query:
+            await self.get_info(ctx,query)
+        elif "https://www.youtube.com/watch" in query:
+            await self.get_song(ctx, query)
 
         player = self.bot.wavelink.get_player(ctx.guild.id)
         curr_track= await self.bot.wavelink.get_tracks(f'ytsearch:{query}')
+        
         if not player.is_connected:
             await ctx.invoke(self.connect)
         Tracks.append(curr_track[0].title)
@@ -128,17 +132,15 @@ class Music(commands.Cog):
     @commands.command()
     async def skip(self, ctx):
         player = self.bot.wavelink.get_player(ctx.guild.id)
+        await self.update_q(list(songs._queue))
         await player.stop()
 
 
-    def update_q(self, ls):
+    async def update_q(self, ls):
         Tracks.clear()
         for x in list(songs._queue):
             Tracks.append(x[0].title)
     @commands.command()
     async def mix(self,ctx):
         shuffle(songs._queue)
-        self.update_q(list(songs._queue))
-
-          
-
+        await self.update_q(list(songs._queue))
