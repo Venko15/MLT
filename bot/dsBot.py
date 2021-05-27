@@ -8,8 +8,10 @@ import asyncio
 import datetime
 import random
 from discord import Client
+from dotenv import load_dotenv
+import os
 client = Client()
-
+load_dotenv()
 
 class MLT(commands.Bot):
     def __init__(self):
@@ -18,6 +20,7 @@ class MLT(commands.Bot):
             "mongodb+srv://MLT:Venkoto%4015@mlt.kinqt.mongodb.net/MLT?retryWrites=true&w=majority")
         self.db = self.client["MLT"]
         self.channelsend = "level-up"
+        self.Token = os.environ["Token"]
         self.prefix = "1"
         super().__init__(command_prefix=self.prefix,
                          case_insensitive=True, intents=discord.Intents.all())
@@ -37,8 +40,8 @@ class MLT(commands.Bot):
 
     def run(self):
         self.setup()
-        TOKEN = "ODEyNzIxMDg4NjE0MTA1MTI4.YDE3fw.SHdLjNCD_9FhpGpza4Lemoa4BtM"
-        super().run(TOKEN, reconnect=True)
+        
+        super().run(self.Token, reconnect=True)
 
     async def on_connect(self):
         print(f" Connected to Discord (latency: {self.latency*1000:,.0f} ms).")
