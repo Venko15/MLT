@@ -232,7 +232,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
             "MAIN": {
                 "host": "de1.neronodes.net",
                 "port": 4146,
-                "rest_uri": "de1.neronodes.net:4146",
+                "rest_uri": "https://de1.neronodes.net:4146",
                 "password": "youshallnotpass",
                 "identifier": "MAIN",
                 "region": "europe",
