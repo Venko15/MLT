@@ -227,7 +227,6 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     async def start_nodes(self):
         await self.bot.wait_until_ready()
-
         await self.wavelink.initiate_node(host='de17.falix.gg',
                                           port=27105,
                                           rest_uri='http://de17.falix.gg:27105',
