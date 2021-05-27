@@ -25,3 +25,4 @@ urllib3==1.26.4
 wavelink==0.9.9
 websocket-client==1.0.1
 yarl==1.6.3
+python-dotenv==0.17.1
