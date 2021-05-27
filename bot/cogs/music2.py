@@ -227,7 +227,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     async def start_nodes(self):
         await self.bot.wait_until_ready()
-
+        #nodes
         nodes = {
             "MAIN": {
                 "host": "de1.neronodes.net",
