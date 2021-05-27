@@ -10,6 +10,7 @@ import random
 from discord import Client
 from dotenv import load_dotenv
 import os
+import dns
 client = Client()
 load_dotenv()
 
