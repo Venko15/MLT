@@ -5,8 +5,9 @@ import asyncio
 import datetime as dt
 import re
 import typing as t
-from enum import Enum
+
 import discord
+from discord.ext.commands.cog import Cog
 from discord.ext.commands.core import command
 import wavelink
 from discord.ext import commands
@@ -59,6 +60,7 @@ class Queue:
             raise EmptyQueue
 
         if self.pos <= len(self._queue) - 1:
+            print(self._queue[self.pos])
             return self._queue[self.pos]
 
     def add_to_queue(self, *args):
@@ -160,8 +162,9 @@ class Player(wavelink.Player):
     async def parse_track(self, ctx, tracks):
         return tracks[0]
 
-    async def start_playback(self):
-        await self.play(self.queue.get_curr_track)
+    async def start_playback(self, offset = 0):
+        print(self.queue.get_curr_track)
+        await self.play(self.queue.get_curr_track, start = offset)
 
     async def play_next(self):
         try:
@@ -225,30 +228,47 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     async def start_nodes(self):
         await self.bot.wait_until_ready()
 
-        await self.wavelink.initiate_node(host='127.0.0.1',
-                                          port=80,
-                                          rest_uri='http://127.0.0.1:80',
-                                          password='youshallnotpass',
-                                          identifier='TEST',
-                                          region='еurope')
+        nodes = {
+            "MAIN": {
+                "host": "127.0.0.1",
+                "port": 80,
+                "rest_uri": "http://127.0.0.1:80",
+                "password": "youshallnotpass",
+                "identifier": "MAIN",
+                "region": "europe",
+            }
+        }
+
+        for node in nodes.values():
+            await self.wavelink.initiate_node(**node)
 
     def get_player(self, obj):
         if isinstance(obj, commands.Context):
             return self.wavelink.get_player(obj.guild.id, cls=Player, context=obj)
         elif isinstance(obj, discord.Guild):
-            return self.wavelink.get_player(obj.guild.id, cls=Player)
+            return self.wavelink.get_player(obj.id, cls=Player)
 
     @commands.command(name="connect", aliases=["join"])
     async def connect_com(self, ctx, *, channel: discord.VoiceChannel = None):
         player = self.get_player(ctx)
         channel = await player.connect(ctx, channel)
         await ctx.guild.change_voice_state(channel=channel, deaf=True)
-        await ctx.send(":arrow_down:")
+
+    @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
+        if not member.bot and after.channel is None:
+            if not [m for m in before.channel.members if not m.bot]:
+                await self.get_player(member.guild).discon()
+        if member.bot and after.deaf:
+            player = self.get_player(self.ctx)
+            offfset = player.position
+            await player.start_playback(offset = offfset)
+
 
     @commands.command(name="play")
     async def play_com(self, ctx, *,  query: str):
         player = self.get_player(ctx)
-
+        self.ctx = ctx
         if not player.is_connected:
             channel = await player.connect(ctx)
 
@@ -264,7 +284,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
                 await player.add_t(ctx, await self.wavelink.get_tracks(f'ytsearch:{query}'))
             else:
                 await player.add_t(ctx, await self.wavelink.get_tracks(query))
-        self.ctx = ctx
+        
 
     @commands.command()
     async def queue(self, ctx):
@@ -318,7 +338,12 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     async def loop(self, ctx):
         player = self.get_player(ctx)
         player.queue.do_loop
-
+    @commands.command()
+    async def is_playing(self, ctx):
+        player = self.get_player(ctx)
+        print(commands.Cog.get_listeners(self))
+        if player.is_playing:
+            await ctx.send("Im playing rn")
 
 def setup(bot):
     bot.add_cog(Music(bot))
