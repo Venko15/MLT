@@ -227,20 +227,13 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     async def start_nodes(self):
         await self.bot.wait_until_ready()
-        #nodes
-        nodes = {
-            "MAIN": {
-                "host": "de1.neronodes.net",
-                "port": 4146,
-                "rest_uri": "de1.neronodes.net:4146",
-                "password": "youshallnotpass",
-                "identifier": "MAIN",
-                "region": "europe",
-            }
-        }
 
-        for node in nodes.values():
-            await self.wavelink.initiate_node(**node)
+        await self.wavelink.initiate_node(host='de17.falix.gg',
+                                          port=27105,
+                                          rest_uri='http://de17.falix.gg:27105',
+                                          password='youshallnotpass',
+                                          identifier='TEST',
+                                          region='еurope')
 
     def get_player(self, obj):
         if isinstance(obj, commands.Context):
