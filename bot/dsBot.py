@@ -63,7 +63,7 @@ class MLT(commands.Bot):
         col = self.db[str(msg.guild)]
 
         if (ch := discord.utils.get(msg.guild.text_channels, name="level-up")) is None:
-            print("opa")
+
             guild = msg.guild
             await guild.create_text_channel(self.channelsend)
         if not msg.author.bot:
