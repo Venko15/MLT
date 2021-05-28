@@ -19,3 +19,16 @@
 2021-05-28 12:39:53.346  INFO 1840 --- [main] lavalink.server.Launcher                 : Starting Launcher on DESKTOP-IE5EG5Q with PID 1840 (D:\veni\python\Project\lavalink.jar started by HOME in D:\veni\python\Project)
 2021-05-28 12:39:53.347  INFO 1840 --- [main] lavalink.server.Launcher                 : No active profile set, falling back to default profiles: default
 2021-05-28 12:39:53.440  WARN 1840 --- [background-preinit] o.s.h.c.j.Jackson2ObjectMapperBuilder    : For Jackson Kotlin classes support please add "com.fasterxml.jackson.module:jackson-module-kotlin" to the classpath
+2021-05-28 12:39:54.363  WARN 1840 --- [main] io.undertow.websockets.jsr               : UT026010: Buffer pool was not set on WebSocketDeploymentInfo, the default pool will be used
+2021-05-28 12:39:54.388  INFO 1840 --- [main] io.undertow.servlet                      : Initializing Spring embedded WebApplicationContext
+2021-05-28 12:39:54.388  INFO 1840 --- [main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 993 ms
+2021-05-28 12:39:54.729  WARN 1840 --- [main] l.server.config.SentryConfiguration      : Turning off sentry
+2021-05-28 12:39:54.943  INFO 1840 --- [main] c.s.d.l.tools.GarbageCollectionMonitor   : GC monitoring enabled, reporting results every 2 minutes.
+2021-05-28 12:39:55.122  INFO 1840 --- [main] lavalink.server.config.KoeConfiguration  : OS: Windows 10, Arch: amd64
+2021-05-28 12:39:55.122  WARN 1840 --- [main] lavalink.server.config.KoeConfiguration  : This system and architecture appears to not support native audio sending! GC pauses may cause your bot to stutter during playback.
+2021-05-28 12:39:55.314  INFO 1840 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+2021-05-28 12:39:55.528  INFO 1840 --- [main] org.xnio                                 : XNIO version 3.3.8.Final
+2021-05-28 12:39:55.536  INFO 1840 --- [main] org.xnio.nio                             : XNIO NIO Implementation Version 3.3.8.Final
+2021-05-28 12:39:55.587  INFO 1840 --- [main] o.s.b.w.e.u.UndertowServletWebServer     : Undertow started on port(s) 80 (http) with context path ''
+2021-05-28 12:39:55.590  INFO 1840 --- [main] lavalink.server.Launcher                 : Started Launcher in 2.761 seconds (JVM running for 3.123)
+2021-05-28 12:39:55.591  INFO 1840 --- [main] lavalink.server.Launcher                 : You can safely ignore the big red warning about illegal reflection. See https://github.com/freyacodes/Lavalink/issues/295
