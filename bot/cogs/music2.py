@@ -165,6 +165,8 @@ class Player(wavelink.Player):
     async def start_playback(self, offset = 0):
         print(self.queue.get_curr_track)
         await self.play(self.queue.get_curr_track, start = offset)
+    async def strt_playback(self, track):
+        await self.play(track)
 
     async def play_next(self):
         try:
@@ -217,19 +219,19 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     @WavelinkMixin.listener("on_track_exception")
     async def on_playerSTOP(self, node, payload):
         await payload.player.play_next()
-
+    """
     @WavelinkMixin.listener("on_track_start")
     async def send_emb(self, node, payload):
         em = discord.Embed()
         th_url = payload.player.queue.get_curr_track.thumb
         em.set_image(url=th_url)
         await self.ctx.send(embed=em)
-
+    """
     async def start_nodes(self):
         await self.bot.wait_until_ready()
-        await self.wavelink.initiate_node(host='de17.falix.gg',
-                                          port=27105,
-                                          rest_uri='http://de17.falix.gg:27105',
+        await self.wavelink.initiate_node(host='mltthebot.loca.lt',
+                                          port=80,
+                                          rest_uri='https://mltthebot.loca.lt:80',
                                           password='youshallnotpass',
                                           identifier='TEST',
                                           region='еurope')
@@ -244,7 +246,6 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     async def connect_com(self, ctx, *, channel: discord.VoiceChannel = None):
         player = self.get_player(ctx)
         channel = await player.connect(ctx, channel)
-        await ctx.guild.change_voice_state(channel=channel, deaf=True)
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -276,7 +277,6 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
                 await player.add_t(ctx, await self.wavelink.get_tracks(f'ytsearch:{query}'))
             else:
                 await player.add_t(ctx, await self.wavelink.get_tracks(query))
-        
 
     @commands.command()
     async def queue(self, ctx):
@@ -330,6 +330,7 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
     async def loop(self, ctx):
         player = self.get_player(ctx)
         player.queue.do_loop
+        
     @commands.command()
     async def is_playing(self, ctx):
         player = self.get_player(ctx)
