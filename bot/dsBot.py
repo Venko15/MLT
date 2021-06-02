@@ -22,7 +22,9 @@ class MLT(commands.Bot):
         self.db = self.client["MLT"]
         self.channelsend = "level-up"
         self.Token = os.environ["Token"]
+        self.rl = self.client["MLTROLES"]
         self.prefix = "1"
+        self.roles = []
         super().__init__(command_prefix=self.prefix,
                          case_insensitive=True, intents=discord.Intents.all())
 
@@ -55,12 +57,29 @@ class MLT(commands.Bot):
 
     async def is_level_up(self, msg, member):
         if member["xp"] >= member["threshold"]:
-
+            
             return True
         return False
+    async def add_role(self, msg,member):
+        rlcol=self.rl[str(msg.guild.id)]
+        myres = rlcol.find().sort("lvl")
+        for r in myres:
+            if r not in self.roles:
+                self.roles.append(r)
+        for i in range(len(self.roles)):
+            if member["lvl"] >= self.roles[i]["lvl"]:
+                if i == len(self.roles)-1:
+                    print(self.roles[i]["lvl"])
+                    role = discord.utils.get(msg.guild.roles, name=str(self.roles[i]["name"]))
+                    await msg.author.add_roles(role)
 
+                elif member["lvl"] >= self.roles[i+1]["lvl"]:
+                    continue
+                else:
+                    role = discord.utils.get(msg.guild.roles, name=str(self.roles[i]["name"]))
+                    await msg.author.add_roles(role)           
     async def on_message(self, msg):
-        col = self.db[str(msg.guild)]
+        col = self.db[str(msg.guild.id)]
 
         if (ch := discord.utils.get(msg.guild.text_channels, name="level-up")) is None:
 
@@ -74,18 +93,20 @@ class MLT(commands.Bot):
                        "xp": 0, "lastmsg": a, "threshold": 10}
                 col.insert_one(ins)
             else:
-                b = datetime.timedelta(minutes=1.5)
+                b = datetime.timedelta(minutes=2)
                 if a - member["lastmsg"] > b:
                     member["lastmsg"] = a
                     member["xp"] += random.randint(5,15)
                     newval = {"$set": {"xp":  int(member["xp"]), "lastmsg": a}}
+                    await self.add_role(msg,member)
                     if await self.is_level_up(msg, member):
-
-                       
+                        
 
                         await ch.send(f'<@{str(msg.author.id)}>  just leveled up. Reached level {int(member["lvl"])+1}')
                         newval = {"$set": {"lvl": int(member["lvl"]+1),
                                            "xp":  int(member["xp"] - member["threshold"]), "lastmsg": a, "threshold": abs((member["lvl"]-1 + member["lvl"])*15)}}
+                    
+
                     col.update(query, newval)
             await self.process_commands(msg)
 
