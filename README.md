@@ -1,6 +1,7 @@
 # MLT
-A discord bot that can do it all. It will be able to play music of your choice, make you laugh by sending memes, leveling system that is going to change your role based on how often you chat and much more
-![mlt logo](https://cdn.discordapp.com/attachments/812720653818921012/851079055905914960/MLT3.png)
+**A discord bot that can do it all. It is able to play music of your choice, make you laugh by sending memes, leveling system that is going to change your role based on how often you chat and much more**
+![mlt logo](https://cdn.discordapp.com/attachments/812720653818921012/851100744404172800/dc2c958e7ce72c9f.png)
+DOCUMENTATION
 ```yaml
 MUSIC:
   1play/1pl/1p <query> - play a playlist/song through this command
@@ -29,4 +30,11 @@ WEATHER:
   
 MEMES:
   1memepls/1meme - send a meme by doing a get request to an API
+```
+MOST IMPORTNANT MODULES
+```requests
+discord.py
+ytdl
+pymongo
+FFmpeg
 ```
