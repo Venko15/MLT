@@ -32,4 +32,8 @@ MEMES:
   1memepls/1meme - send a meme by doing a get request to an API
 ```
 MOST IMPORTNANT MODULES
-requests, discord.py, ytdl, pymongo and FFmpeg
+```requests
+discord.py
+ytdl
+pymongo
+FFmpeg```
