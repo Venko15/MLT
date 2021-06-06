@@ -28,7 +28,7 @@ class AutoRbot(commands.Cog):
     async def level(self,ctx):
         col = self.db[str(ctx.guild.id)]
         query = {"name" : str(ctx.author.id)}
-        print("ti si negur")
+
         if (member := col.find_one(query)):
             await ctx.send(f'<@{int(member["name"])}>you are level {member["lvl"]}')
 
@@ -69,9 +69,9 @@ class AutoRbot(commands.Cog):
         role = " ".join(rolename)
         col = self.rl[str(ctx.guild.id)]
         query = {"name": role}
-        print("Negur1")
+
         if (member := col.find_one(query)):
-            print("Negur2")
+
             await ctx.send("Waiting for level input")
             
             level = await self.bot.wait_for('message', check=lambda message: message.author == ctx.author)
