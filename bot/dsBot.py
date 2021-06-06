@@ -18,6 +18,7 @@ class MLT(commands.Bot):
     def __init__(self):
         
         self._cogs = [p.stem for p in Path(".").glob("./bot/cogs/*.py")]
+        self._cogs.remove("cogTesting")
         self.client = pymongo.MongoClient(
             "mongodb+srv://MLT:Venkoto%4015@mlt.kinqt.mongodb.net/MLT?retryWrites=true&w=majority")
         self.db = self.client["MLT"]

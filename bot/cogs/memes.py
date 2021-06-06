@@ -1,7 +1,5 @@
 import random
 from discord import embeds
-import praw
-from psaw import PushshiftAPI
 import datetime as dt
 from discord.ext import commands
 import discord

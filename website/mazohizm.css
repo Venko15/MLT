@@ -1,0 +1,46 @@
+html {
+	background: linear-gradient(75deg, #1c03ff, #502862, #3298c0, #204ddf70 ) no-repeat;
+	background-size: 400% 400%;
+    height:100%;
+	animation: gradient 7s ease infinite;
+}
+.Button{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 95vh;
+}
+.ref{
+    transition-duration : 0.7s;
+    text-decoration : none;
+    color : blue;
+    font-family : Arial, Helvetica, sans-serif;
+    margin : 10px;
+    font-size : 5vw;
+    -webkit-text-stroke-width: 2px;
+    -webkit-text-stroke-color: white;
+    
+}
+.ref:hover{
+    transition-duration : 0.1s;
+    color : black;
+}
+@media only screen and (max-width: 480px) {
+    .ref {
+        font-size: 10vw;
+    }
+}
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+    
+}

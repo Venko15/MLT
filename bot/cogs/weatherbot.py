@@ -6,6 +6,7 @@ import requests
 import json
 import datetime
 import typing as t
+import unittest
 class NoCityName(commands.CommandError):
     pass
 class NoCityFound(commands.CommandError):
@@ -86,6 +87,14 @@ class WeatherBot(commands.Cog):
             await ctx.send("You must enter a city name after the command")
         elif isinstance(exc, NoCityFound):
             await ctx.send("I couldn't find a city with this name")
-    
+    @commands.command()
+    async def test_w(self, ctx):
+        t=Test()
+        if not await t.test_weather():
+            await ctx.send("tests passed")
+class Test(unittest.TestCase):
+    async def test_weather(self):
+        m = WeatherBot(discord.Client())
+        self.assertEqual(m.build_url("http://api.openweathermap.org/data/2.5/forecast?","Sofia","2888fecacf9ba5007679e4fd079a7388"),"http://api.openweathermap.org/data/2.5/forecast?q=Sofia&appid=2888fecacf9ba5007679e4fd079a7388")    
 def setup(bot):
     bot.add_cog(WeatherBot(bot))
