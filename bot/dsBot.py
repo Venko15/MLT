@@ -13,7 +13,7 @@ import os
 import dns
 client = Client()
 load_dotenv()
-
+import unittest
 class MLT(commands.Bot):
     def __init__(self):
         
@@ -99,6 +99,10 @@ class MLT(commands.Bot):
             guild = msg.guild
             await guild.create_text_channel(self.channelsend)
         if not msg.author.bot:
+            if msg.content == "1test_m":
+                t = Test()
+                if not await t.test_main():
+                    await msg.channel.send("tests passed")
             a = datetime.datetime.today()
             query = {"name": str(msg.author.id)}
             if (member := col.find_one(query)) is None:
@@ -122,4 +126,7 @@ class MLT(commands.Bot):
 
                     col.update(query, newval)
             await self.process_commands(msg)
-
+class Test(unittest.TestCase):
+    async def test_main(self):
+        m = MLT()
+        self.assertTrue(await m.is_level_up(None,{"xp":20,"threshold":15}), True)

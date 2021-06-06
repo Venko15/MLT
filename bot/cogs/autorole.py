@@ -104,9 +104,9 @@ class AutoRbot(commands.Cog):
             embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/827580959322144768/850770402796109854/unknown.png")
             embed.set_author(name="Yeah thats me >__MLT ze bot__<", icon_url="https://cdn.discordapp.com/attachments/827580959322144768/850770402796109854/unknown.png")
 
-            embed.add_field(name="🎷Music", value="```yaml\nFor help with the memes commmand type - 1help Music```")
-            embed.add_field(name="🏋Autorole", value="```yaml\nFor help with the memes commmand type - 1help Autorole```")
-            embed.add_field(name="☁️Weather", value="```yaml\nFor help with the memes commmand type - 1help Weather```")
+            embed.add_field(name="🎷Music", value="```yaml\nFor help with the music commmand type - 1help Music```")
+            embed.add_field(name="🏋Autorole", value="```yaml\nFor help with the autorole commmand type - 1help Autorole```")
+            embed.add_field(name="☁️Weather", value="```yaml\nFor help with the weather commmand type - 1help Weather```")
             embed.add_field(name="🤣Memes", value="```yaml\nFor help with the memes commmand type - 1help Memes```")
         elif intention == "Music":
             embed = discord.Embed(title="This is Music Help", colour=discord.Colour(0xa94ab1), description="This is a multifunctional bot")
