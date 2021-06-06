@@ -57,6 +57,8 @@ class AutoRbot(commands.Cog):
         query = {"name": role}
         if (member := col.find_one(query)):
             col.delete_one(query)
+            role_object = discord.utils.get(ctx.message.guild.roles, name=role)
+            await role_object.delete()
         else:
             msg = await ctx.send(f'There isnt a role named {role}')
             await asyncio.sleep(4)

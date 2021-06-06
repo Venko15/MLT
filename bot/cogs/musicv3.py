@@ -196,7 +196,7 @@ class MusicB(commands.Cog):
     async def mixer(self, ctx):
         self.queue.mix
     @commands.command()
-    async def do_loop(self,ctx):
+    async def loop(self,ctx):
         self.queue.do_loop
     @commands.command(name="q")
     async def queue_com(self, ctx):
