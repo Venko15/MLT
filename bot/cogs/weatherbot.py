@@ -48,7 +48,7 @@ class WeatherBot(commands.Cog):
         lista = []
         res = requests.get(url)
         x = res.json()
-        if days > 30 or days < 1:
+        if days > 15 or days < 1:
             await ctx.send("aight mate, cant be over 30 neither lower than one, so imma jus say 'you dumb, dumb'")
             pass
         if x["cod"] == "401" or x["cod"] == "404":
@@ -75,6 +75,12 @@ class WeatherBot(commands.Cog):
             msg += f'``` Max Temperature = {forecast[i][0]} C\n Min Temperature = {forecast[i][1]} C\n humidity (in percentage) = {forecast[i][2]} \n description = {forecast[i][3]}```\n'
         await ctx.send(msg)
     @weather.error
+    async def weather_exc(self, ctx, exc):
+        if isinstance(exc, NoCityName):
+            await ctx.send("You must enter a city name after the command")
+        elif isinstance(exc, NoCityFound):
+            await ctx.send("I couldn't find a city with this name")
+    @forecast.error
     async def weather_exc(self, ctx, exc):
         if isinstance(exc, NoCityName):
             await ctx.send("You must enter a city name after the command")

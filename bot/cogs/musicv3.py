@@ -1,3 +1,5 @@
+from cache_decorator.cache import cache
+from discord.activity import Spotify
 from discord.player import FFmpegAudio
 from youtube_dl import YoutubeDL
 import discord
@@ -11,9 +13,14 @@ from youtubesearchpython import VideosSearch
 import re
 from random import shuffle
 from youtubesearchpython import *
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
 ffmpeg_opts = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                'options': '-vn'}
-Url_reg = r'\w+:\/\/.*'
+Youtube_URL = r'((http|https):\/\/|)(www\.|)youtube\.com/playlist'
+Spotify_URL = r'((http|https):\/\/|)(open.spotify)'
+auth_manager = SpotifyClientCredentials()
+sp = spotipy.Spotify(auth_manager=auth_manager)
 class NotVoiceChannnel(commands.CommandError):
     pass
 class EmptyQueue(commands.CommandError):
@@ -29,6 +36,7 @@ SCROLL = {
 class Queue:
     def __init__(self):
         self._queue = []
+        self.track_names = []
         self.pos = 0
         self.queuePOS = 0
         self.mode = False
@@ -57,6 +65,9 @@ class Queue:
         self._queue.extend(args)
         if not prev_len:
             self.event_listeners["on_not_empty"](self)
+    def add_song_names(self, *args):
+       
+        self.track_names.extend(args)
 
     def get_next_track(self, error):
         if not self._queue:
@@ -129,10 +140,22 @@ class MusicB(commands.Cog):
     async def disconn(self,error):
         await self.voice_client.disconnect()
 
-    def search_song(self,query):
+    async def search_song(self,query):
         video_output = VideosSearch(query, limit = 1)
-        return video_output.result()["result"][0]["link"]
-    
+        return video_output.result()["result"][0]["link"] if video_output is not None else None
+
+    async def spotify_parse(self,ctx, url):
+        playlists = sp.playlist(url)
+        spotsong = []
+        i=0
+        for i in range(10121212121010101):
+            try:
+                spotsong.append(playlists['tracks']["items"][i]['track']["name"] + " - " + playlists['tracks']["items"][i]['track']["album"]["artists"][0]["name"] )
+                i+=1
+            except IndexError:
+                break
+        return list(spotsong)
+        
     @commands.command()
     async def pl(self,ctx,*args):
         url = ""
@@ -143,16 +166,26 @@ class MusicB(commands.Cog):
             self.queue.vc = await ctx.author.voice.channel.connect()
         Track = None
 
-        if re.match(Url_reg,url):
+        if re.match(Youtube_URL,url):
             try:
                 playlist = Playlist(url)
                 songs = [x["link"] for x in playlist.videos]
+                songs_names = [x["title"] for x in playlist.videos]
+                print(songs_names)
+                self.queue.add_song_names(*songs_names)
                 self.queue.add_to_queue(*songs)
             except:
                 Track = url
             
+        elif re.match(Spotify_URL,str(url)):
+            List = await self.spotify_parse(ctx,url)
+            self.queue.add_song_names(*List)
+            for i in List:
+                if (song := await self.search_song(i)):
+                    self.queue.add_to_queue(song)
+            print("ready")
         else:
-            Track = self.search_song(url)
+            Track = await self.search_song(url)
         self.queue.add_to_queue(Track)
 
     @commands.command()
@@ -176,11 +209,11 @@ class MusicB(commands.Cog):
             )
         q = ""
 
-        for i in range(self.queue.queuePOS, self.queue.queuePOS+10)[:len(self.queue._queue)]:
-            if i > len(self.queue._queue)-1:
+        for i in range(self.queue.queuePOS, self.queue.queuePOS+10)[:len(self.queue.track_names)]:
+            if i > len(self.queue.track_names)-1:
                 pass
             else:
-                q += f'{i} - '+str(self.queue._queue[i])
+                q += f'{i} - '+ str(self.queue.track_names[i])
                 q += "\n"
         if not self.queue.is_empty:
             msg = await ctx.send(f'```yaml\n{str(q)}```')
