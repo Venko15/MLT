@@ -19,8 +19,8 @@ import unittest
 ffmpeg_opts = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                'options': '-vn'}
 Youtube_URL = r'((http|https):\/\/|)(www\.|)youtube\.com/playlist'
-Spotify_URL = r'((http|https):\/\/|)(open.spotify)/playlist'
-Spotify_song_url = r'((http|https):\/\/|)(open.spotify)/track'
+Spotify_URL = r'\w+:\/\/open.spotify.com\/playlist\/.*'
+Spotify_song_url = r'https://open.spotify.com/track/'
 auth_manager = SpotifyClientCredentials()
 sp = spotipy.Spotify(auth_manager=auth_manager)
 
@@ -72,7 +72,7 @@ class Queue:
 
         if self.pos <= len(self._queue)-1:
             print(self._queue[self.pos])
-            return self._queue[self.pos]
+            return self._queue[self.pos]["song_link"]
 
     def add_to_queue(self, *args):
         prev_len = len(self._queue)
@@ -80,10 +80,6 @@ class Queue:
         self._queue.extend(args)
         if not prev_len:
             self.event_listeners["on_not_empty"](self)
-
-    def add_song_names(self, *args):
-
-        self.track_names.extend(args)
 
     def get_next_track(self, error):
         if not self._queue:
@@ -158,6 +154,10 @@ class MusicB(commands.Cog):
     async def disconn(self, error):
         await self.voice_client.disconnect()
 
+    async def get_song_name(self, query):
+        video_output = VideosSearch(query, limit=1)
+        return video_output.result()["result"][0]["title"] if video_output is not None else None
+
     async def search_song(self, query):
         video_output = VideosSearch(query, limit=1)
         return video_output.result()["result"][0]["link"] if video_output is not None else None
@@ -177,8 +177,9 @@ class MusicB(commands.Cog):
 
     async def spotify_song(self, ctx, url):
         song = sp.track(url)
-        output =str(song["album"]["artists"][0]["name"])+" - "+ str(song["album"]["name"])
-            
+        output = str(song["album"]["artists"][0]["name"]) + \
+            " - " + str(song["name"])
+        print(output)
         return output
 
     @commands.command(name="play", aliases=["pl", "p"])
@@ -194,26 +195,33 @@ class MusicB(commands.Cog):
         if re.match(Youtube_URL, url):
             try:
                 playlist = Playlist(url)
-                songs = [x["link"] for x in playlist.videos]
-                songs_names = [x["title"] for x in playlist.videos]
-                self.queue.add_song_names(*songs_names)
+                songs = [{"song_link": x["link"], "song_title" : x["title"]}
+                         for x in playlist.videos]
                 self.queue.add_to_queue(*songs)
             except:
                 Track = url
 
         elif re.match(Spotify_URL, str(url)):
+            dc = []
             List = await self.spotify_parse(ctx, url)
-            self.queue.add_song_names(*List)
             for i in List:
                 if (song := await self.search_song(i)):
-                    self.queue.add_to_queue(song)
+                    dc.append({"song_link": song, "song_title": i})
+            self.queue.add_to_queue(*dc)
+            return
         elif re.match(Spotify_song_url, str(url)):
-                await self.search_song(await self.spotify_song(url))
+            Track = await self.search_song(await self.spotify_song(ctx, url))
+            song_name = await self.get_song_name(await self.spotify_song(ctx, url))
+            dc = {"song_link": Track, "song_title": song_name}
+
         else:
+            song_name = await self.get_song_name(url)
             Track = await self.search_song(url)
+            dc = {"song_link": Track, "song_title": song_name}
         if Track == None:
             raise TrackNotFound
-        self.queue.add_to_queue(Track)
+
+        self.queue.add_to_queue(dc)
 
     @commands.command(name="skip", aliases=["sk"])
     async def skip(self, ctx):
@@ -239,11 +247,11 @@ class MusicB(commands.Cog):
             )
         q = ""
 
-        for i in range(self.queue.queuePOS, self.queue.queuePOS+10)[:len(self.queue.track_names)]:
-            if i > len(self.queue.track_names)-1:
+        for i in range(self.queue.queuePOS, self.queue.queuePOS+10)[:len(self.queue._queue)]:
+            if i > len(self.queue._queue)-1:
                 pass
             else:
-                q += f'{i} - ' + str(self.queue.track_names[i])
+                q += f'{i+1} - ' + str(self.queue._queue[i]["song_title"])
                 q += "\n"
         if not self.queue.is_empty:
             msg = await ctx.send(f'```yaml\n{str(q)}```')

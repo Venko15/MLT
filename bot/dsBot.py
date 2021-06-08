@@ -11,14 +11,14 @@ from discord import Client
 from dotenv import load_dotenv
 import os
 import dns
+import unittest
 client = Client()
 load_dotenv()
-import unittest
+
 class MLT(commands.Bot):
     def __init__(self):
         
         self._cogs = [p.stem for p in Path(".").glob("./bot/cogs/*.py")]
-        self._cogs.remove("cogTesting")
         self.client = pymongo.MongoClient(
             "mongodb+srv://MLT:Venkoto%4015@mlt.kinqt.mongodb.net/MLT?retryWrites=true&w=majority")
         self.db = self.client["MLT"]
@@ -40,7 +40,7 @@ class MLT(commands.Bot):
             print(f" Loaded `{cog}` cog.")
 
     async def on_ready(self):
-        print("U modafuka logged in ")
+        print("MLT logged in ")
 
     async def prefix(self, bot, msg):
         return commands.when_mentioned_or(str(self.prefix))(bot, msg)
@@ -94,7 +94,7 @@ class MLT(commands.Bot):
     async def on_message(self, msg):
         col = self.db[str(msg.guild.id)]
 
-        if (ch := discord.utils.get(msg.guild.text_channels, name="level-up")) is None:
+        if (ch := discord.utils.get(msg.guild.text_channels, name=self.channelsend)) is None:
 
             guild = msg.guild
             await guild.create_text_channel(self.channelsend)

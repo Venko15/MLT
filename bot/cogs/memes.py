@@ -8,11 +8,10 @@ class Meme(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-    @commands.command(name='memepls')
-    async def memepls(self,ctx,pass_context=True):
+    @commands.command(name='memepls', aliases = ["meme"])
+    async def memepls(self,ctx):
         res = requests.get("https://meme-api.herokuapp.com/gimme")
         x = res.json()
-        print(x)
         embed = discord.Embed()
         embed.set_image(url = x["url"])
         embed.set_author(name = x["title"])

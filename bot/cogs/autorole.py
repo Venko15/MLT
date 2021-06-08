@@ -10,12 +10,7 @@ from discord import channel, guild
 from discord.ext.commands.core import command
 import os, sys
 import typing as t
-currentdir = os.path.dirname(os.path.realpath('D:\\veni\python\Project\\bot\\dsBot.py'))
-parentdir = os.path.dirname(currentdir)
-sys.path.append(parentdir)
 
-from bot import MLT
-mlt = MLT()
 class AutoRbot(commands.Cog):
     def __init__(self,bot):
         self.bot = bot
