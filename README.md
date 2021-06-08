@@ -38,3 +38,4 @@ ytdl
 pymongo
 FFmpeg
 ```
+SIDE NOTE: FFmpeg exe file needs to be downloaded https://www.ffmpeg.org/
