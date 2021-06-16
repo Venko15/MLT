@@ -12,9 +12,9 @@ from dotenv import load_dotenv
 import os
 import dns
 import unittest
-client = Client()
 load_dotenv()
-
+import bot.glbs
+from .cogs.musicv3 import Queue
 class MLT(commands.Bot):
     def __init__(self):
         
@@ -40,6 +40,9 @@ class MLT(commands.Bot):
             print(f" Loaded `{cog}` cog.")
 
     async def on_ready(self):
+
+        bot.glbs.queue = {x.id:Queue() for x in self.guilds}
+        print(bot.glbs.queue)
         print("MLT logged in ")
 
     async def prefix(self, bot, msg):

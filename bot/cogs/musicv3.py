@@ -22,6 +22,7 @@ Youtube_URL = r'((http|https):\/\/|)(www\.|)youtube\.com/playlist'
 Spotify_URL = r'\w+:\/\/open.spotify.com\/playlist\/.*'
 Spotify_song_url = r'https://open.spotify.com/track/'
 auth_manager = SpotifyClientCredentials()
+import bot.glbs
 sp = spotipy.Spotify(auth_manager=auth_manager)
 
 
@@ -57,6 +58,7 @@ class Queue:
         self.mode = False
         self.event_listeners = {}
         self.vc = None
+        self.listeners_set=False
 
     @property
     def is_empty(self):
@@ -94,6 +96,7 @@ class Queue:
             if self.mode:
 
                 self.pos = 0
+                self.queuePOS = 0
             else:
                 self.clear_q()
         self.event_listeners["on_pos_change"](self)
@@ -122,6 +125,7 @@ class Queue:
     def clear_q(self):
         self._queue.clear()
         self.pos = 0
+        self.queuePOS = 0
 
     @property
     def do_loop(self):
@@ -140,8 +144,8 @@ class Queue:
 class MusicB(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.queue = Queue()
-        set_listeners(self.queue)
+        self.queue = None
+        #set_listeners(self.queue)
 
     @staticmethod
     def download_inf(url):
@@ -151,9 +155,17 @@ class MusicB(commands.Cog):
         print(mp3["title"])
         return track
 
+    @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
+        if not member.bot and after.channel is None:
+            if not [m for m in before.channel.members if not m.bot]:
+                await member.guild.voice_client.disconnect()
     async def disconn(self, error):
         await self.voice_client.disconnect()
-
+    @commands.command(name="leave", aliases=["l", "quit"])
+    async def leave_comm(self, ctx):
+        self.clear(ctx)
+        await self.ctx.guild.voice_client.diconnect()
     async def get_song_name(self, query):
         video_output = VideosSearch(query, limit=1)
         return video_output.result()["result"][0]["title"] if video_output is not None else None
@@ -184,6 +196,12 @@ class MusicB(commands.Cog):
 
     @commands.command(name="play", aliases=["pl", "p"])
     async def play(self, ctx, *args):
+        self.queue = bot.glbs.queue[ctx.guild.id]
+        print("opaaaaaaaaaa")
+        if not self.queue.listeners_set:
+            set_listeners(self.queue)
+            self.queue.listeners_set = True
+
         url = ""
         url = " ".join(args)
         if self.queue.vc is None:
@@ -220,25 +238,28 @@ class MusicB(commands.Cog):
             dc = {"song_link": Track, "song_title": song_name}
         if Track == None:
             raise TrackNotFound
-
+        
         self.queue.add_to_queue(dc)
 
     @commands.command(name="skip", aliases=["sk"])
     async def skip(self, ctx):
+        self.queue = bot.glbs.queue[ctx.guild.id]
         self.queue.vc.stop()
         self.queue.get_next_track(None)
 
     @commands.command()
     async def mix(self, ctx):
+        self.queue = bot.glbs.queue[ctx.guild.id]
         self.queue.mix
 
     @commands.command()
     async def loop(self, ctx):
+        self.queue = bot.glbs.queue[ctx.guild.id]
         self.queue.do_loop
 
     @commands.command(name="q", aliases=["queue"])
     async def queue_com(self, ctx):
-
+        self.queue = bot.glbs.queue[ctx.guild.id]
         def _check(r, u):
             return (
                 r.emoji in SCROLL.keys()
@@ -251,6 +272,7 @@ class MusicB(commands.Cog):
             if i > len(self.queue._queue)-1:
                 pass
             else:
+                print(i)
                 q += f'{i+1} - ' + str(self.queue._queue[i]["song_title"])
                 q += "\n"
         if not self.queue.is_empty:
@@ -283,7 +305,10 @@ class MusicB(commands.Cog):
         if not await t.test_music():
             await ctx.send("tests passed")
 
-
+    @commands.command()
+    async def clear(self, ctx):
+        self.queue = bot.glbs.queue[ctx.guild.id]
+        self.queue.clear_q()
 class Test(unittest.TestCase):
     async def test_music(self):
         m = MusicB(discord.Client())
@@ -303,3 +328,4 @@ def set_listeners(queue):
 
 def setup(bot):
     bot.add_cog(MusicB(bot))
+    print()
